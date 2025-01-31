@@ -1,81 +1,78 @@
-<script setup> 
+<script setup>
 
-import {ref, computed, onMounted, watch} from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import Header from './components/Header.vue';
 import Footer from './components/Footer.vue';
 import Guitarra from "./components/Guitarra.vue";
-import {db} from'./data/guitarras';
+import { db } from './data/guitarras';
 
 
 const guitars = ref(db)
 const carrito = ref([])
 //const total = computed(() => {
-    //let total = 0
-    //carrito.value.forEach(g => {
-        //total += g.precio * g.cantidad
-    //})
-    //return total
+//let total = 0
+//carrito.value.forEach(g => {
+//total += g.precio * g.cantidad
+//})
+//return total
 //})
 
-const total = computed(()=> {return carrito.value.reduce((t, g) => t = (g.acantidad * g.precio), 0)})
+const total = computed(() => carrito.value.reduce((t, g) => t + (g.acantidad * g.precio), 0))
 
-function agregarCarrito(guitar){
+function agregarCarrito(guitar) {
     const guitarId = carrito.value.findIndex(g => g.id === guitar.id)
-    if(guitarId === -1)
-        carrito.value.push({...guitar, cantidad: 1})
+    if (guitarId === -1)
+        carrito.value.push({ ...guitar, cantidad: 1 })
     else
         carrito.value[guitarId].cantidad++;
 }
 
 
-function quitaUno(id){
-    const idCarrito = carrito.value.findIndex(g => g.id ===id)
-    if(carrito.value[idCarrito].cantidad>1)
-        carrito.value[idCarrito.cantidad]--    
+function quitaUno(id) {
+    const idCarrito = carrito.value.findIndex(g => g.id === id)
+    if (carrito.value[idCarrito].cantidad > 1)
+        carrito.value[idCarrito.cantidad]--
 }
 
-function quitaGuitarra(id){
-    const idCarrito = carrito.value.findIndex(g => g.id ===id)
+function quitaGuitarra(id) {
+    const idCarrito = carrito.value.findIndex(g => g.id === id)
     carrito.value.splice(idCarrito, 1)
 }
 
-function vaciarCarrito(){
+function vaciarCarrito() {
     carrito.value = []
 }
 
-function guardarStorage(){
-    localStorage.setItem('carrito',JSON.stringify(carrito.value))
+function guardarStorage() {
+    localStorage.setItem('carrito', JSON.stringify(carrito.value))
 }
 
-function recuperaStorage(){
+function recuperaStorage() {
     const datos = localStorage.getItem('carrito')
-    return datos? JSON.parse(datos): []
-    
+    return datos ? JSON.parse(datos) : []
+
 }
 
 onMounted(() => {
-    carrito.value = recuperaStorage
+    carrito.value = recuperaStorage()
 })
 
-watch(carrito, guardarStorage, { deep:true })
+watch(carrito, guardarStorage, { deep: true })
 
 </script>
 
 
 <template>
-  <Header :carrito="carrito" :total="total" :guitar="guitars[3]" @agregar-carrito ="agregarCarrito" @quita-uno ="quitaUno" @quita-guitarra ="quitaGuitara" @vaciar-carrito ="vaciarCarrito"/> 
-   <main class="container-xl mt-5">
+    <Header :carrito="carrito" :total="total" :guitar="guitars[3]" @agregar-carrito="agregarCarrito"
+        @quita-uno="quitaUno" @quita-guitarra="quitaGuitarra" @vaciar-carrito="vaciarCarrito" />
+    <main class="container-xl mt-5">
         <h2 class="text-center">Nuestra Colección</h2>
 
         <div class="row mt-5">
-         <Guitarra v-for="guitar in guitars"
-         :key="guitar.id"
-         :guitar="guitar"
-         @agregar-carrito="agregarCarrito"
-         />
-          
+            <Guitarra v-for="guitar in guitars" :key="guitar.id" :guitar="guitar" @agregar-carrito="agregarCarrito" />
 
-      
+
+
         </div>
     </main>
     <Footer></Footer>
